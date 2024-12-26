@@ -88,11 +88,11 @@ export const login = async (req, res) => {
       entity: userFound.entity,
     });
 
-    res.cookie("token", token, /* {
-            httpOnly: process.env.NODE_ENV !== "development",
-            secure: true,
-            sameSite: "none",
-        } */);
+    res.cookie("token", token, {
+      /* httpOnly: process.env.NODE_ENV !== "development", */
+      secure: true,
+      sameSite: "none",
+    });
 
     res.json({
       email: userFound.email,
@@ -122,8 +122,8 @@ export const verify = async (req, res) => {
     jwt.verify(token, process.env.TOKEN_SECRET || "secret", async (error, user) => {
       if (error) return res.sendStatus(401);
 
-      const userFound = await User.find({email:user.email});
-      if (userFound.length==0) return res.sendStatus(401);
+      const userFound = await User.find({ email: user.email });
+      if (userFound.length == 0) return res.sendStatus(401);
 
       return res.json({
         email: userFound[0].email,
