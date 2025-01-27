@@ -6,10 +6,10 @@ const UserSchema = new mongoose.Schema(
         name: { type: String, required: true },
         lastName: { type: String, required: true },
         password: { type: String, required: true, trim: true },
-        role: { type: Object, default: { role: 4, name: "user" } },
+        role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' },
         phone: { type: String, default: "" },
         asigned: { type: Array, default: [] },
-        entity: { type: Object }
+        entity: { type: mongoose.Schema.Types.ObjectId, ref: 'Entity' }
     },
 
     { timestamps: true }

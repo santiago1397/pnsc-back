@@ -61,7 +61,7 @@ export const login = async (req, res) => {
 
     const { email, password } = req.body;
 
-    var userFound = await User.findOne({ email });
+    var userFound = await User.findOne({ email }).populate('entity').populate('role');
 
     console.log("wtf")
     if (!userFound)

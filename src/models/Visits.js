@@ -13,6 +13,7 @@ const VisitSchema = new mongoose.Schema(
         activityDate: { type: Date },
         agendedLink: { type: String },
         students: { type: Array },
+        description: { type: String },
         observation: { type: String },
         createdBy: { type: Object }
     },

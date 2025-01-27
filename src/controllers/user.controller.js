@@ -1,20 +1,46 @@
 import User from "../models/User.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import Role from "../models/Role.js";
 
 export const getUsers = async (req, res) => {
   try {
 
+    const skip = parseInt(req.params.skip)
+    const limit = parseInt(req.params.limit)
+
     if (req.user.role.role <= 3) {
       if (req.user.asigned.length === 0) {
-        const users = await User.find({})
-        return res.status(200).json(users)
+        const total = await User.countDocuments()
+        const documents = await User.find({})
+          .populate('entity')
+          .populate('role')
+          .skip(skip)
+          .limit(limit)
+          .sort({ createdAt: -1 })
+        return res.status(200).json({documents, total})
       }
 
     } else {
+
       //mostrar usuarios menores en cargo y del mismo ente
-      const users = await User.find({"role.role": { $mt: req.user.role.role-1}, "entity.name": req.user.entity.name})
-      return res.status(200).json(users)
+      const total = await User.countDocuments({
+        email: { $ne: req.user.email },
+        "role.role": { $gt: req.user.role.role - 1 },
+        "entity": req.user.entity._id
+      })
+      const documents = await User
+        .find({
+          email: { $ne: req.user.email },
+          "role.role": { $gt: req.user.role.role - 1 },
+          "entity": req.user.entity._id
+        })
+        .populate('entity')
+        .populate('role')
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+      return res.status(200).json({documents, total})
 
     }
 
@@ -28,13 +54,13 @@ export const getUsers = async (req, res) => {
 export const createUser = async (req, res) => {
   try {
     //si el usuario que lo esta creando es menor
-    if (req.user.role.role < req.body.role.role) {
+    if (req.user.role.role < req.body.role.role || req.user.role.role == 1) {
 
       //probablemente validar que lo este creando el mismo ente
 
 
       //valida si exite alguien con ese mail
-      const uservalidation = await User.find({ email: req.body.email })
+      const uservalidation = await User.find({ email: req.body.email }).populate('entity')
       if (uservalidation.length > 0) {
         return res.status(500).json("ya existe un usuario con ese datos");
 
@@ -76,34 +102,49 @@ export const updateUser = async (req, res) => {
     if (req.user.email == req.body.email) {
       if (req.body.password) {
         const passwordHash = await bcrypt.hash(req.body.password, 10);
-        await User.findOneAndUpdate(objectId, { $set: { password: passwordHash, role: req.body.role } }, { new: true })
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { ...req.body, password: passwordHash } }
+        );
       } else {
-        await User.findOneAndUpdate(objectId, { $set: { role: req.body.role } }, { new: true })
+        const { password, ...updateData } = req.body
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { ...updateData } }
+        );
       }
 
-      const user = await User.findOneAndUpdate(objectId, { ...req.body, email: req.user.email }, { new: true })
-      return res.status(200).json(user)
-
+      return res.status(200).json("usuario modificado")
     }
 
 
     // solo puede modificalo alguien con mayor rango 
-    if (req.user.role.role < req.body.role.role) {
+    const role = await Role.findById(req.body.role)
+    if (req.user.role.role < role.role) {
+
 
       //se comprueba si la payload viene con newpassword y se updetea
       if (req.body.password) {
         const passwordHash = await bcrypt.hash(req.body.password, 10);
-        await User.findOneAndUpdate(objectId, { $set: { password: passwordHash, role: req.body.role } }, { new: true })
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { ...req.body, password: passwordHash } }
+        );
+
       } else {
-        await User.findOneAndUpdate(objectId, { $set: { role: req.body.role } }, { new: true })
+        const { password, ...updateData } = req.body
+        await User.updateOne(
+          { _id: req.params.id },
+          { $set: { ...updateData } }
+        );
       }
 
-      const user = await User.findOneAndUpdate(objectId, { ...req.body }, { new: true })
-      return res.status(200).json(user)
+      return res.status(200).json("usuario modificado")
     }
 
     return res.status(200).json("no puedes modificar este usuario")
   } catch (err) {
+    console.log(err)
     return res.status(500).json(err);
   }
 }

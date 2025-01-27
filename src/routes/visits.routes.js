@@ -9,8 +9,8 @@ import { verifyToken } from '../middlewares/auth.middleware.js'
 
 const router = Router();
 
-router.get("/user", verifyToken, getVisits);
-router.post("/user", verifyToken, createVisit);
+router.get("/visits/:skip/:limit", verifyToken, getVisits);
+router.post("/visits", verifyToken, createVisit);
 /* router.put("/user/:id", verifyToken, updateUser); */
 /* router.delete("/user/:id", verifyToken, deleteUser); */
 

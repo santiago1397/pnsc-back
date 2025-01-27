@@ -14,6 +14,9 @@ import entity from './src/routes/entity.routes.js'
 import schedule from './src/routes/schedule.routes.js'
 import schools from './src/routes/schools.routes.js'
 import visits from './src/routes/visits.routes.js'
+import media from './src/routes/media.routes.js'    
+import role from './src/routes/roles.routes.js'
+import reports from './src/routes/reports.routes.js'
 import cron from 'node-cron'
 
 
@@ -58,6 +61,9 @@ app.use("/api", entity);
 app.use("/api", schedule);
 app.use("/api", schools);
 app.use("/api", visits);
+app.use("/api", media);
+app.use("/api", role);
+app.use("/api", reports);
 
 
 app.listen(process.env.PORT || 8800, () => {
