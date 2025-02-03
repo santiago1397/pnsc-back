@@ -17,9 +17,31 @@ export const createEntity = async (req, res) => {
 export const getEntities = async (req, res) => {
   try {
 
-    const entities = await Entity.find({})
-    return res.status(200).json(entities)
 
+    const skip = parseInt(req.params.skip)
+    const limit = parseInt(req.params.limit)
+
+    const documents = await Entity.find({}).skip(skip).limit(limit).sort({ name: 1 })
+    const total = await Entity.countDocuments()
+
+    return res.status(200).json({ documents, total })
+
+  } catch (err) {
+    console.log(err)
+    res.status(500).json(err);
+  }
+}
+
+export const editEntity = async (req, res) => {
+
+  try {
+    const result = await Entity.updateOne(
+      { _id: req.params.id },
+      { $set: { ...req.body } }
+    );
+
+
+    return res.status(200).json("Entidad editada")
   } catch (err) {
     console.log(err)
     res.status(500).json(err);

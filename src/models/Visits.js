@@ -12,7 +12,10 @@ const VisitSchema = new mongoose.Schema(
         checked: { type: Boolean },
         activityDate: { type: Date },
         agendedLink: { type: String },
-        students: { type: Array },
+        teachersExpected: { type: Number },
+        teachers: { type: Number },
+        studentsExpected: { type: Number },
+        students: { type: Number },
         description: { type: String },
         observation: { type: String },
         createdBy: { type: Object }

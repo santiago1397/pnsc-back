@@ -21,7 +21,7 @@ export const getSchedules = async (req, res) => {
     const limit = parseInt(req.params.limit)
 
     if (req.user.role.role <= 2) {
-      const documents = await Schedule.find({ visitlink: "" }).skip(skip).limit(limit).sort({ createdAt: -1 });
+      const documents = await Schedule.find({ visitlink: "" }).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('entity');
       const total = await Schedule.countDocuments({ visitlink: "" })
       return res.status(200).json({documents, total})
     }

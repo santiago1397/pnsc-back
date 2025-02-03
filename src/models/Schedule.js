@@ -9,6 +9,7 @@ const ScheduleSchema = new mongoose.Schema(
     activity: { type: Object },
     subActivity: {type: String},
     entity: { type: Object },
+    teachersExpected: { type: Number },
     studentSpected: { type: Number },
     visitlink: { type: String, default: '' }
   },

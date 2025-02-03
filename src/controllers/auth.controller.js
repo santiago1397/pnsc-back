@@ -77,6 +77,7 @@ export const login = async (req, res) => {
       });
     }
 
+    console.log(userFound.entity)
 
     const token = await createAccessToken({
       email: userFound.email,
@@ -122,7 +123,7 @@ export const verify = async (req, res) => {
     jwt.verify(token, process.env.TOKEN_SECRET || "secret", async (error, user) => {
       if (error) return res.sendStatus(401);
 
-      const userFound = await User.find({ email: user.email });
+      const userFound = await User.find({ email: user.email }).populate('entity').populate('role');
       if (userFound.length == 0) return res.sendStatus(401);
 
       return res.json({

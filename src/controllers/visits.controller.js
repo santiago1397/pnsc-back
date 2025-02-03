@@ -1,6 +1,51 @@
 import Visit from "../models/Visits.js";
 import Student from "../models/Student.js";
 import Schedule from "../models/Schedule.js";
+import Teachers from "../models/Teachers.js";
+import fs from "fs"
+import * as XLSX from 'xlsx'
+
+
+export const validateStudents = async (req, res) => {
+  try {
+
+    let aux = req.body.students
+    var repeated = []
+
+    aux.forEach(element => {
+      element.entity = req.body.entity.name,
+        element.activityDate = req.body.activityDate
+    });
+
+
+    for (let i = 0; i < aux.length; i++) {
+      console.log(new Date(req.body.activityDate),)
+
+      if (aux.ci != "") {
+        const found = await Student.find({ activityDate: new Date(req.body.activityDate), ci: aux[i].ci })
+        if (found.length > 0) {
+          console.log(found[0])
+          return res.status(406).json({ student: found[0] })
+        }
+      }
+
+
+      const found = await Student.find({ activityDate: new Date(req.body.activityDate), name: aux[i].name, lastName: aux[i].name })
+      if (found.length > 0) {
+        console.log(found[0])
+        return res.status(406).json({ student: found[0] })
+      }
+    }
+
+    return res.status(200).json({ ok: "estudiantes verificados" })
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(err);
+  }
+}
+
+
 
 export const createVisit = async (req, res) => {
 
@@ -9,7 +54,7 @@ export const createVisit = async (req, res) => {
     /* delete visitInfo.students */
 
 
-    const visit = new Visit({ ...visitInfo, students: null })
+    const visit = new Visit({ ...visitInfo, students: req.body.students.length, teachers: req.body.teachers.length })
     const final = await visit.save()
 
     let aux = req.body.students
@@ -21,12 +66,22 @@ export const createVisit = async (req, res) => {
 
     aux.forEach(element => {
       element.entity = req.body.entity.name,
-      element.activityDate = req.body.activityDate,
-      element.activityLink = final._id
+        element.activityDate = req.body.activityDate,
+        element.activityLink = final._id
     });
+
 
     await Student.insertMany(aux)
 
+    let aux2 = req.body.teachers
+
+    aux2.forEach(element => {
+      element.entity = req.body.entity.name,
+        element.activityDate = req.body.activityDate,
+        element.activityLink = final._id
+    });
+
+    await Teachers.insertMany(aux2)
 
     res.status(200).json("agenda creada exitosamente")
   } catch (err) {
@@ -56,6 +111,63 @@ export const getVisits = async (req, res) => {
     res.status(500).json(err);
   }
 }
+
+export const getVisitReport = async (req, res) => {
+  try {
+
+    console.log(req.params.entity)
+    console.log(req.params.id)
+
+    const folder = `files/routes/${req.params.entity}`
+    var filename = `files/routes/${req.params.entity}/${req.params.id}.xlsx`;
+
+
+    fs.mkdirSync(folder, { recursive: true })
+
+
+    if (fs.existsSync(filename)) {
+      console.log('File exists!');
+      // Do something with the file
+      res.download(filename)
+    }
+
+    const documents = await Student.find({ activityLink: req.params.id }).populate('activityLink');
+
+    function formatDate(date) {
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+
+    //creo un nuevo json para pasarlo a excel con todos los campos
+    const newdocs = documents.map(doc => {
+      return {
+        id: doc.id,
+        ...doc._doc,
+        activityDate: formatDate(doc._doc.activityDate),
+        visitId: doc.activityLink.id,
+        activityName: doc.activityLink.activityName,
+        activity: doc.activityLink.activity.name,
+        subActivity: doc.activityLink.subActivity,
+      }
+    })
+
+
+
+    const worksheet = XLSX.utils.json_to_sheet(newdocs);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    XLSX.writeFile(workbook, filename, { compression: true });
+
+    res.download(filename)
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error);
+  }
+}
+
 
 /* export const linkSchedule = async (req, res) => {
   try {

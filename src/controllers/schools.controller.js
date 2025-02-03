@@ -17,7 +17,12 @@ export const createSchool = async (req, res) => {
 export const getSchools = async (req, res) => {
   try {
 
-    const schools = await Schools.find({"parish.label": req.body.parish})
+    const documents = await Schools.find({
+      "parish.label": { $regex: new RegExp(substring, 'i') }, // 'i' flag for case-insensitivity
+    });
+
+    console.log(documents)
+
     return res.status(200).json(schools)
 
   } catch (err) {

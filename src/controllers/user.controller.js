@@ -6,13 +6,18 @@ import Role from "../models/Role.js";
 export const getUsers = async (req, res) => {
   try {
 
+    var entityQuery = {}
+    if (req.query.entity && req.query.entity != "TODOS") {
+      entityQuery = { entity: req.query.entity }
+    }
+
     const skip = parseInt(req.params.skip)
     const limit = parseInt(req.params.limit)
 
     if (req.user.role.role <= 3) {
       if (req.user.asigned.length === 0) {
-        const total = await User.countDocuments()
-        const documents = await User.find({})
+        const total = await User.countDocuments({...entityQuery})
+        const documents = await User.find({...entityQuery})
           .populate('entity')
           .populate('role')
           .skip(skip)
