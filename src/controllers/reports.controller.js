@@ -330,10 +330,14 @@ export const searchStudent = async (req, res) => {
     const students = await Student.find({
       $or: [
         { ci: { $regex: new RegExp(searchTerm, 'i') } },
-        { name: { $regex: new RegExp(searchTerm, 'i') } },
-        { lastName: { $regex: new RegExp(searchTerm, 'i') } },
-        { school: { $regex: new RegExp(searchTerm, 'i') } },
-      ]
+        {
+          $and: [ // Combination of name AND lastName
+            { name: { $regex: new RegExp(searchTerm, 'i') } }, // First word of searchTerm in name
+            { lastName: { $regex: new RegExp(searchTerm, 'i') } } // Second word or first if only one word in lastName
+          ]
+        }
+      ],
+
     }).populate('activityLink')
 
     res.status(200).json(students)
