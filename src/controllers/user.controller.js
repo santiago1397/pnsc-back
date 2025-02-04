@@ -31,13 +31,48 @@ export const getUsers = async (req, res) => {
       //mostrar usuarios menores en cargo y del mismo ente
       const total = await User.countDocuments({
         email: { $ne: req.user.email },
-        "role.role": { $gt: req.user.role.role - 1 },
+        "role.role": { $gte: 4 },
         "entity": req.user.entity._id
-      })
+      }).populate('role')
+
+      const users = await User.aggregate([
+        {
+          $lookup: {
+            from: "roles",
+            localField: "role",
+            foreignField: "_id",
+            as: "roleInfo"
+          }
+        },
+        {
+          $unwind: "$roleInfo"
+        },
+        {
+          $match: {
+            "roleInfo.role": { $gte: req.user.role.role },
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            email: 1,
+            name: 1,
+            lastName: 1,
+            // ... other fields
+            roleValue: "$roleInfo.role",  // Renamed to roleValue to avoid confusion
+            entity: 1,
+            createdAt: 1,
+            updatedAt: 1
+          }
+        }
+      ]);
+      
+      console.log(users);
+
       const documents = await User
         .find({
           email: { $ne: req.user.email },
-          "role.role": { $gt: req.user.role.role - 1 },
+          "role.role": { $gte: parseInt(req.user.role.role) - 1 },
           "entity": req.user.entity._id
         })
         .populate('entity')
@@ -45,6 +80,9 @@ export const getUsers = async (req, res) => {
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
+
+      console.log(total)
+      console.log(documents)
       return res.status(200).json({documents, total})
 
     }
