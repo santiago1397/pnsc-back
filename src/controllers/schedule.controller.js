@@ -3,6 +3,8 @@ import Schedule from "../models/Schedule.js";
 export const createSchedule = async (req, res) => {
 
   try {
+
+    console.log(req.body)
     const schedule = new Schedule({ ...req.body })
     await schedule.save()
 

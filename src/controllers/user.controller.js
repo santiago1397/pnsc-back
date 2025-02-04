@@ -50,6 +50,7 @@ export const getUsers = async (req, res) => {
         {
           $match: {
             "roleInfo.role": { $gte: req.user.role.role },
+            "entity": req.user.entity._id
           }
         },
         {
