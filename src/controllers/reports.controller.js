@@ -1,58 +1,21 @@
 import Student from "../models/Student.js";
 import Activity from "../models/Activities.js";
+import { Category, Categorylvl1, Categorylvl2, Categorylvl3 }  from "../models/Category.js"
 import Visits from "../models/Visits.js";
 import Teachers from "../models/Teachers.js"
 import * as XLSX from 'xlsx'
 
 export const getGeneralReport = async (req, res) => {
   try {
-    const categories = await Activity.find();
+    const categories = await Category.find();
 
     var entityQuery = {}
-    if (req.params.entity != "todos") {
+    if (req.params.entity != "TODOS") {
       entityQuery = { entity: req.params.entity }
     }
 
 
-    //obtengo todas las subcategorias
-    var subcategories = [];
-    for (let i = 0; i < categories.length; i++) {
-      for (let j = 0; j < categories[i].subcategories.length; j++) {
-        subcategories.push(categories[i].subcategories[j].name);
-      }
-    }
-
-    var report = [];
-
-    for (let i = 0; i < subcategories.length; i++) {
-      var accumulated = { name: subcategories[i], f: 0, m: 0, p: 0, t: 0 };
-
-      //por cada visita con su subcategoria busco el acumulado de la misma
-      const visits = await Visits.find({ subActivity: subcategories[i] })
-      for (let j = 0; j < visits.length; j++) {
-
-        const femenino = await Student.countDocuments({ ...entityQuery, activityLink: visits[j].id, gender: "Femenino" });
-        const masculino = await Student.countDocuments({ ...entityQuery, activityLink: visits[j].id, gender: "Masculino" });
-        const profesores = await Teachers.countDocuments({ ...entityQuery, activityLink: visits[j].id });
-        const total = await Student.countDocuments({ ...entityQuery, activityLink: visits[j].id });
-
-        accumulated.f += femenino;
-        accumulated.m += masculino;
-        accumulated.p += profesores;
-        accumulated.t += total;
-
-      }
-
-      report.push(accumulated)
-
-
-    }
-
-    //acumulado total
-    const femenino = await Student.countDocuments({ ...entityQuery, gender: "Femenino" });
-    const masculino = await Student.countDocuments({ ...entityQuery, gender: "Masculino" });
-    const profesores = await Teachers.countDocuments({ ...entityQuery, });
-    const total = await Student.countDocuments({ ...entityQuery, });
+    
 
 
 
@@ -95,7 +58,6 @@ export const getDatabase = async (req, res) => {
         activityDate: formatDate(doc._doc.activityDate),
         visitId: doc.activityLink.id,
         activityName: doc.activityLink.activityName,
-        activity: doc.activityLink.activity.name,
         subActivity: doc.activityLink.subActivity,
       }
     })
@@ -123,7 +85,7 @@ export const getYearlyReport = async (req, res) => {
     console.log(req.params.entity)
 
     var entityQuery = {}
-    if (req.params.entity != "todos") {
+    if (req.params.entity != "TODOS") {
       entityQuery = { entity: req.params.entity }
     }
 
@@ -357,3 +319,45 @@ export const getWeekReport = async (req, res) => {
     return res.status(500).json(err);
   }
 }
+
+
+
+/* //obtengo todas las subcategorias
+var subcategories = [];
+for (let i = 0; i < categories.length; i++) {
+  for (let j = 0; j < categories[i].subcategories.length; j++) {
+    subcategories.push(categories[i].subcategories[j].name);
+  }
+}
+
+var report = [];
+
+for (let i = 0; i < subcategories.length; i++) {
+  var accumulated = { name: subcategories[i], f: 0, m: 0, p: 0, t: 0 };
+
+  //por cada visita con su subcategoria busco el acumulado de la misma
+  const visits = await Visits.find({ subActivity: subcategories[i] })
+  for (let j = 0; j < visits.length; j++) {
+
+    const femenino = await Student.countDocuments({ ...entityQuery, activityLink: visits[j].id, gender: "Femenino" });
+    const masculino = await Student.countDocuments({ ...entityQuery, activityLink: visits[j].id, gender: "Masculino" });
+    const profesores = await Teachers.countDocuments({ ...entityQuery, activityLink: visits[j].id });
+    const total = await Student.countDocuments({ ...entityQuery, activityLink: visits[j].id });
+
+    accumulated.f += femenino;
+    accumulated.m += masculino;
+    accumulated.p += profesores;
+    accumulated.t += total;
+
+  }
+
+  report.push(accumulated)
+
+
+}
+
+//acumulado total
+const femenino = await Student.countDocuments({ ...entityQuery, gender: "Femenino" });
+const masculino = await Student.countDocuments({ ...entityQuery, gender: "Masculino" });
+const profesores = await Teachers.countDocuments({ ...entityQuery, });
+const total = await Student.countDocuments({ ...entityQuery, }); */

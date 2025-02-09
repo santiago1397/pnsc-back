@@ -1,16 +1,40 @@
-import Category from "../models/Category.js";
+import { Category, Categorylvl1, Categorylvl2, Categorylvl3 } from "../models/Category.js";
 
 export const createCategory = async (req, res) => {
 
-  try {
-    /* checks if there is a institution already named the same way*/
-    const val = await Category.find({ name: req.body.name })
+  const categories = [Category, Categorylvl1, Categorylvl2, Categorylvl3]
+  const categoriesnames = ["category", "categorylvl1", "categorylvl2", "categorylvl3"]
 
-    if (val.length == 0) {
-      const newCategory = new Category({
-        name: req.body.name
-      })
-      await newCategory.save()
+  const addRecursive = async (previousid, element, step) => {
+
+    if (step > categories.length - 1) {
+      return
+    }
+
+    var obj = {}
+    obj[categoriesnames[step - 1]] = previousid
+    obj.name = element.name
+    const newstuff = new categories[step](obj);
+    await newstuff.save();
+
+
+    if (element.subs.length == 0) {
+      return
+    }
+
+    for (let i = 0; i < element.subs.length; i++) {
+      await addRecursive(newstuff._id, element.subs[i], step + 1)
+    }
+  }
+
+  try {
+    const newCategory = req.body
+
+    const document = new Category({ name: req.body.name })
+    await document.save()
+
+    for (let i = 0; i < req.body.subs.length; i++) {
+      await addRecursive(document._id, req.body.subs[i], 1)
     }
 
 
@@ -22,43 +46,45 @@ export const createCategory = async (req, res) => {
 }
 
 export const getCategories = async (req, res) => {
+  const categories = [Category, Categorylvl1, Categorylvl2, Categorylvl3];
+  const categoriesnames = ["category", "categorylvl1", "categorylvl2", "categorylvl3"];
+
+  const findSubs = async (id, step) => {
+    if (step > categories.length - 1) return [];
+
+    const query = {};
+    query[categoriesnames[step - 1]] = id;
+
+    const documents = await categories[step].find(query);
+
+    if (documents.length <= 0) return [];
+
+    // Key change: Use map to process all documents and recursively call findSubs
+    return Promise.all(documents.map(async (doc) => {
+      const subcategories = await findSubs(doc._id, step + 1);
+      return { ...doc.toObject(), subs: subcategories }; // Important: Convert to plain object
+    }));
+  };
+
   try {
+    
+    const activities = await Category.find().skip(req.params.skip).limit(req.params.limit);
+    const total = await Category.countDocuments().skip(req.params.skip).limit(req.params.limit);
 
-    const categories = await Category.find({}).sort({ createdAt: -1 })
-    return res.status(200).json(categories)
+    const newActivities = await Promise.all(activities.map(async (activity) => {
+      const subs = await findSubs(activity._id, 1);
+      return { ...activity.toObject(), subs }; // Important: Convert to plain object
+    }));
 
+    res.status(200).json({ total, documents: newActivities });
   } catch (err) {
-    console.log(err)
+    console.error(err); // Use console.error for errors
     res.status(500).json(err);
   }
-}
+};
 
-// check later if its working
-export const deleteCategory = async (req, res) => {
-  try {
-
-    let category = await Category.find({ id: req.params.id })
-    await Category.findByIdAndDelete(req.params.id)
-
-    res.status(200).json("category deleted successfully")
-  } catch (error) {
-    console.log(error)
-    res.status(500).json(error)
+/* for (const key in updateData) {
+  if (updateData.hasOwnProperty(key)) {
+      subcategory[key] = updateData[key];
   }
-}
-
-export const updateObservation = async (req, res) => {
-  const { observation } = req.body
-
-  try {
-    var note = await Notes.findById(req.params.id)
-    note.tutorObservations = observation
-    note.save()
-
-    res.status(200).json("note checked field changed")
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
-
-
+} */

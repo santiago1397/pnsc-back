@@ -1,6 +1,6 @@
 export const Entes = [
   {
-    "name": "MINISTERIO DEL PODER POPULAR PARA LA CIENCIA Y TECNOLOGÍA",
+    "name": "MINISTERIO DEL PODER POPULAR PARA CIENCIA Y TECNOLOGÍA",
     "acronim": "MINCYT",
     "asigned": []
   },
@@ -32,11 +32,6 @@ export const Entes = [
   {
     "name": "COMPAÑÍA ANÓNIMA NACIONAL TELÉFONOS DE VENEZUELA",
     "acronim": "CANTV",
-    "asigned": []
-  },
-  {
-    "name": "CORPORACIÓN SOCIALISTA DE LAS TELECOMUNICACIONES Y SERVICIOS POSTALES, CA.",
-    "acronim": "CORPOSTEL",
     "asigned": []
   },
   {
@@ -142,11 +137,6 @@ export const Entes = [
   {
     "name": "CANAIMA INDUSTRIAS CANAIMA, C.A.",
     "acronim": "INDUSTRIAS",
-    "asigned": []
-  },
-  {
-    "name": "INSTITUTO POSTAL TELEGRÁFICO DE VENEZUELA",
-    "acronim": "IPOSTEL",
     "asigned": []
   },
   {

@@ -67,7 +67,12 @@ export const createVisit = async (req, res) => {
     aux.forEach(element => {
       element.entity = req.body.entity.name,
         element.activityDate = req.body.activityDate,
-        element.activityLink = final._id
+        element.activityLink = final._id,
+        element.category = req.body.category,
+        element.subCategorylvl1 = req.body.subCategorylvl1,
+        element.subCategorylvl2 = req.body.subCategorylvl2,
+        element.subCategorylvl3 = req.body.subCategorylvl3
+
     });
 
 

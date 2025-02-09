@@ -9,6 +9,12 @@ const VisitSchema = new mongoose.Schema(
         entity: { type: Object },
         activity: { type: Object },
         subActivity: { type: String },
+
+        category: { type: String },
+        subCategorylvl1: { type: String },
+        subCategorylvl2: { type: String },
+        subCategorylvl3: { type: String },
+
         checked: { type: Boolean },
         activityDate: { type: Date },
         agendedLink: { type: String },

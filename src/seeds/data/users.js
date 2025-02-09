@@ -8,12 +8,12 @@ export const users = [
     "role": "ROOT",
     "phone": "04126080650",
     "asigned": [],
-    "entity": "MINISTERIO DEL PODER POPULAR PARA LA CIENCIA Y TECNOLOGÍA",
+    "entity": "MINISTERIO DEL PODER POPULAR PARA CIENCIA Y TECNOLOGÍA",
   },
   {
     "email": "robotica@mincyt.gob.ve",
     "password": "AOf}#8qAo}",
-    "entity": "MINISTERIO DEL PODER POPULAR PARA LA CIENCIA Y TECNOLOGÍA",
+    "entity": "MINISTERIO DEL PODER POPULAR PARA CIENCIA Y TECNOLOGÍA",
     "name": "Robotica",
     "lastName": "Mincyt",
     "role": "ROOT"
@@ -283,14 +283,6 @@ export const users = [
     "role": "Presidente"
   },
   {
-    "email": "sc.iposteldata@mincyt.gob.ve",
-    "password": "DXLfbCR5o7",
-    "entity": "INSTITUTO POSTAL TELEGRÁFICO DE VENEZUELA",
-    "name": "Semillero",
-    "lastName": "Ipostel",
-    "role": "Presidente"
-  },
-  {
     "email": "sc.ivicdata@mincyt.gob.ve",
     "password": "YwhZ4MZRgD",
     "entity": "INSTITUTO VENEZOLANO DE INVESTIGACIONES CIENTÍFICAS",
@@ -429,7 +421,7 @@ export const users = [
   {
     "email": "dcabana@mincyt.gob.ve",
     "password": "BkED9dkqgv",
-    "entity": "MINISTERIO DEL PODER POPULAR PARA LA CIENCIA Y TECNOLOGÍA",
+    "entity": "MINISTERIO DEL PODER POPULAR PARA CIENCIA Y TECNOLOGÍA",
     "name": "Darwin",
     "lastName": "Cabaña",
     "role": "supervisor"

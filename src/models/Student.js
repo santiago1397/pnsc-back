@@ -26,6 +26,11 @@ const StudentsSchema = new mongoose.Schema(
     representativeEmail: { type: String },
     representativeProfession: { type: String },
 
+    category: {type: String},
+    subCategorylvl1: {type: String},
+    subCategorylvl2: {type: String},
+    subCategorylvl3: {type: String},
+
     entity: { type: String },
     activityDate: { type: Date },
     activityLink: { type: mongoose.Schema.Types.ObjectId, ref: 'Visits' },
