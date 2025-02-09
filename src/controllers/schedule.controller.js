@@ -1,4 +1,6 @@
 import Schedule from "../models/Schedule.js";
+import Entity from "../models/Entity.js"
+import User from "../models/User.js";
 
 export const createSchedule = async (req, res) => {
 
@@ -7,6 +9,12 @@ export const createSchedule = async (req, res) => {
     console.log(req.body)
     const schedule = new Schedule({ ...req.body })
     await schedule.save()
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email: req.user.email },
+      { lastScheduled: new Date() },
+      { new: true } // Return the updated document
+    );
 
 
     res.status(200).json("agenda creada exitosamente")
@@ -19,19 +27,28 @@ export const createSchedule = async (req, res) => {
 
 export const getSchedules = async (req, res) => {
   try {
+
+    var entityQuery = {}
+    if (req.query.entity && req.query.entity != "TODOS") {
+      const entity = await Entity.find({ name: req.query.entity })
+      entityQuery = { "entity._id": entity[0].id }
+    }
+
     const skip = parseInt(req.params.skip)
     const limit = parseInt(req.params.limit)
 
     if (req.user.role.role <= 2) {
-      const documents = await Schedule.find({ visitlink: "" }).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('entity');
-      const total = await Schedule.countDocuments({ visitlink: "" })
-      return res.status(200).json({documents, total})
+      const documents = await Schedule.find({ ...entityQuery, visitlink: "" }).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('entity');
+      const total = await Schedule.countDocuments({ ...entityQuery, visitlink: "" })
+
+
+      return res.status(200).json({ documents, total })
     }
 
     const documents = await Schedule.find({ "entity.name": req.user.entity.name, visitlink: "" }).skip(skip).limit(limit).sort({ createdAt: -1 });
     const total = await Schedule.countDocuments({ "entity.name": req.user.entity.name, visitlink: "" })
-    
-    return res.status(200).json({documents, total})
+
+    return res.status(200).json({ documents, total })
 
   } catch (err) {
     console.log(err)

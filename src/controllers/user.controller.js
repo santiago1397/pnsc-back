@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import Role from "../models/Role.js";
 
+
 export const getUsers = async (req, res) => {
   try {
 
@@ -16,17 +17,29 @@ export const getUsers = async (req, res) => {
 
     if (req.user.role.role <= 3) {
       if (req.user.asigned.length === 0) {
-        const total = await User.countDocuments({...entityQuery})
-        const documents = await User.find({...entityQuery})
+        const total = await User.countDocuments({ ...entityQuery })
+        const documents = await User.find({ ...entityQuery })
           .populate('entity')
           .populate('role')
           .skip(skip)
           .limit(limit)
           .sort({ createdAt: -1 })
-        return res.status(200).json({documents, total})
+        return res.status(200).json({ documents, total })
       }
 
     } else {
+      const searched = await User.find({
+        email: { $ne: req.user.email },
+        entity: req.user.entity._id
+      }).populate('role').sort({ createdAt: -1 });
+
+      const filteredUsers = searched.filter(user => {
+        return user.role && user.role.role && user.role.role >= req.user.role.role;
+      });
+
+      const documents = filteredUsers.slice(skip, skip + limit)/* .sort({ createdAt: -1 }) */;
+
+  
 
       //mostrar usuarios menores en cargo y del mismo ente
       const total = await User.countDocuments({
@@ -35,56 +48,8 @@ export const getUsers = async (req, res) => {
         "entity": req.user.entity._id
       }).populate('role')
 
-      const users = await User.aggregate([
-        {
-          $lookup: {
-            from: "roles",
-            localField: "role",
-            foreignField: "_id",
-            as: "roleInfo"
-          }
-        },
-        {
-          $unwind: "$roleInfo"
-        },
-        {
-          $match: {
-            "roleInfo.role": { $gte: req.user.role.role },
-            "entity": req.user.entity._id
-          }
-        },
-        {
-          $project: {
-            _id: 1,
-            email: 1,
-            name: 1,
-            lastName: 1,
-            // ... other fields
-            roleValue: "$roleInfo.role",  // Renamed to roleValue to avoid confusion
-            entity: 1,
-            createdAt: 1,
-            updatedAt: 1
-          }
-        }
-      ]);
       
-      console.log(users);
-
-      const documents = await User
-        .find({
-          email: { $ne: req.user.email },
-          "role.role": { $gte: parseInt(req.user.role.role) - 1 },
-          "entity": req.user.entity._id
-        })
-        .populate('entity')
-        .populate('role')
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 })
-
-      console.log(total)
-      console.log(documents)
-      return res.status(200).json({documents, total})
+      return res.status(200).json({ documents, total })
 
     }
 
@@ -98,7 +63,10 @@ export const getUsers = async (req, res) => {
 export const createUser = async (req, res) => {
   try {
     //si el usuario que lo esta creando es menor
-    if (req.user.role.role < req.body.role.role || req.user.role.role == 1) {
+
+    const role = await Role.findById(req.body.role)
+
+    if (req.user.role.role < role.role || req.user.role.role == 1 ) {
 
       //probablemente validar que lo este creando el mismo ente
 
@@ -112,14 +80,18 @@ export const createUser = async (req, res) => {
 
       const passwordHash = await bcrypt.hash(req.body.password, 10);
 
+      //this is if a president is creating a user or not
+      var entityUser = ""
+      !req.body.entity? entityUser=req.user.entity : entityUser=req.body.entity
+
       const newuser = new User({
         email: req.body.email,
         name: req.body.name,
         lastName: req.body.lastName,
-        role: req.body.role,
+        role: role._id,
         phone: req.body.phone,
         asigned: req.body.asigned,
-        entity: req.body.entity,
+        entity: entityUser,
         password: passwordHash,
       })
 

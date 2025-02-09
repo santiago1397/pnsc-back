@@ -21,6 +21,7 @@ export const getEntities = async (req, res) => {
     const skip = parseInt(req.params.skip)
     const limit = parseInt(req.params.limit)
 
+
     const documents = await Entity.find({}).skip(skip).limit(limit).sort({ name: 1 })
     const total = await Entity.countDocuments()
 

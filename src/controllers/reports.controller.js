@@ -1,6 +1,6 @@
 import Student from "../models/Student.js";
 import Activity from "../models/Activities.js";
-import { Category, Categorylvl1, Categorylvl2, Categorylvl3 }  from "../models/Category.js"
+import { Category, Categorylvl1, Categorylvl2, Categorylvl3 } from "../models/Category.js"
 import Visits from "../models/Visits.js";
 import Teachers from "../models/Teachers.js"
 import * as XLSX from 'xlsx'
@@ -15,7 +15,7 @@ export const getGeneralReport = async (req, res) => {
     }
 
 
-    
+
 
 
 
@@ -249,7 +249,7 @@ export const getStateReport = async (req, res) => {
 export const getRepeatedStudentReport = async (req, res) => {
   try {
     var entityQuery = {}
-    if (req.params.entity != "todos") {
+    if (req.params.entity != "TODOS") {
       entityQuery = { entity: req.params.entity }
     }
 
@@ -260,10 +260,10 @@ export const getRepeatedStudentReport = async (req, res) => {
 
     for (let i = 0; i < students.length; i++) {
       var count = 0
-      const key = `${students[i].ci}-${students[i].name}`;
-      
+      const key = `${students[i].ci}`;
+
       for (let j = 0; j < students.length; j++) {
-        if ((students[i].ci == students[j].ci) || (students[i].name == students[j].name )) {
+        if ((students[i].ci == students[j].ci)) {
           count++
         }
       }
@@ -292,18 +292,24 @@ export const searchStudent = async (req, res) => {
     const students = await Student.find({
       $or: [
         { ci: { $regex: new RegExp(searchTerm, 'i') } },
-        {
-          $and: [ // Combination of name AND lastName
-            { name: { $regex: new RegExp(searchTerm, 'i') } }, // First word of searchTerm in name
-            { lastName: { $regex: new RegExp(searchTerm, 'i') } } // Second word or first if only one word in lastName
-          ]
-        }
+        { name: { $regex: new RegExp(searchTerm, 'i') } }, // First word of searchTerm in name
+        { lastName: { $regex: new RegExp(searchTerm, 'i') } } // Second word or first if only one word in lastName
       ],
 
     }).populate('activityLink')
 
     res.status(200).json(students)
 
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json(err);
+  }
+}
+
+export const overAllReport = async (req, res) => {
+  try {
+
+    res.status(200).json()
   } catch (err) {
     console.log(err)
     return res.status(500).json(err);

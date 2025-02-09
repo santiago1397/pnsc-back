@@ -1,5 +1,5 @@
 import Activities from "../models/Activities.js";
-import Category from "../models/Category.js";
+import { Category } from "../models/Category.js";
 import Role from "../models/Role.js"
 import User from "../models/User.js";
 import Entity from "../models/Entity.js";
@@ -31,7 +31,7 @@ try {
 
   //borro todas las colecciones
   await Activities.deleteMany({})
-  await Category.deleteMany({})
+  /* await Category.deleteMany({}) */
   await Role.deleteMany({})
   await User.deleteMany({})
   await Entity.deleteMany({})
@@ -47,7 +47,7 @@ try {
 
   //inserto los datos
   await Activities.insertMany(ActivitiesSeed)
-  await Category.insertMany(Categories)
+  /* await Category.insertMany(Categories) */
   await State.insertMany(States)
   await Municipality.insertMany(Municipalities)
   await Parish.insertMany(Parishes)

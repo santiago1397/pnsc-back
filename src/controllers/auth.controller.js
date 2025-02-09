@@ -63,7 +63,6 @@ export const login = async (req, res) => {
 
     var userFound = await User.findOne({ email }).populate('entity').populate('role');
 
-    console.log("wtf")
     if (!userFound)
       return res.status(400).json({
         message: ["El email no esta registrado"],
@@ -78,6 +77,12 @@ export const login = async (req, res) => {
     }
 
     console.log(userFound.entity)
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email: userFound.email },
+      { lastConnexion: new Date() },
+      { new: true } // Return the updated document
+    );
 
     const token = await createAccessToken({
       email: userFound.email,
@@ -125,6 +130,12 @@ export const verify = async (req, res) => {
 
       const userFound = await User.find({ email: user.email }).populate('entity').populate('role');
       if (userFound.length == 0) return res.sendStatus(401);
+
+      const updatedUser = await User.findOneAndUpdate(
+        { email: userFound[0].email },
+        { lastConnexion: new Date() },
+        { new: true } // Return the updated document
+      );
 
       return res.json({
         email: userFound[0].email,

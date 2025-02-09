@@ -2,6 +2,7 @@ import Visit from "../models/Visits.js";
 import Student from "../models/Student.js";
 import Schedule from "../models/Schedule.js";
 import Teachers from "../models/Teachers.js";
+import Entity from "../models/Entity.js"
 import fs from "fs"
 import * as XLSX from 'xlsx'
 
@@ -88,6 +89,13 @@ export const createVisit = async (req, res) => {
 
     await Teachers.insertMany(aux2)
 
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email: req.user.email },
+      { lastLoaded: new Date() },
+      { new: true } // Return the updated document
+    );
+
     res.status(200).json("agenda creada exitosamente")
   } catch (err) {
     console.log(err)
@@ -98,12 +106,18 @@ export const createVisit = async (req, res) => {
 
 export const getVisits = async (req, res) => {
   try {
+    var entityQuery = {}
+    if (req.query.entity && req.query.entity != "TODOS") {
+      const entity = await Entity.find({ name: req.query.entity })
+      entityQuery = { "entity._id": entity[0].id }
+    }
+
     const skip = parseInt(req.params.skip)
     const limit = parseInt(req.params.limit)
 
     if (req.user.role.role <= 2) {
-      const documents = await Visit.find().skip(skip).limit(limit).sort({ createdAt: -1 });
-      const total = await Visit.countDocuments()
+      const documents = await Visit.find({ ...entityQuery }).skip(skip).limit(limit).sort({ createdAt: -1 });
+      const total = await Visit.countDocuments({ ...entityQuery })
       return res.status(200).json({ documents, total })
     }
 
@@ -115,6 +129,34 @@ export const getVisits = async (req, res) => {
     console.log(err)
     res.status(500).json(err);
   }
+}
+
+export const deleteVisit = async (req, res) => {
+  try {
+    req.params.id
+
+    const visit = await Visit.findById(req.params.id)
+
+    if (visit) {
+      const result1 = await Student.deleteMany({ activityLink: req.params.id })
+      console.log(result1.deletedCount)
+
+      const result2 = await Teachers.deleteMany({ activityLink: req.params.id })
+      console.log(result2.deletedCount)
+
+      const schedule = await Schedule.find({ visitlink: req.params.id })
+      schedule[0].visitlink = ""
+      await schedule[0].save()
+
+      await Visit.findByIdAndDelete(req.params.id)
+      return res.status(200).json("eliminado exitosamente");
+    }
+    return res.status(202).json("ok?");
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json(error);
+  }
+
 }
 
 export const getVisitReport = async (req, res) => {
@@ -153,7 +195,6 @@ export const getVisitReport = async (req, res) => {
         activityDate: formatDate(doc._doc.activityDate),
         visitId: doc.activityLink.id,
         activityName: doc.activityLink.activityName,
-        activity: doc.activityLink.activity.name,
         subActivity: doc.activityLink.subActivity,
       }
     })

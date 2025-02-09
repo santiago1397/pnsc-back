@@ -25,7 +25,7 @@ export const getRoles = async (req, res) => {
       return res.status(200).json(documents)
     }
 
-    const documents = await Role.find({ role: { $lt: 100 } }).sort({ createdAt: -1 });
+    const documents = await Role.find({ role: { $gte: 5 } }).sort({ createdAt: -1 });
 
     return res.status(200).json(documents)
 
