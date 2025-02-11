@@ -85,8 +85,18 @@ export const Entes = [
     "asigned": []
   },
   {
+    "name": "CENTRO NACIONAL DE INVESTIGACIÓN EN CACAO",
+    "acronim": "CENTRO INVS CACAO",
+    "asigned": []
+  },
+  {
     "name": "CORPORACIÓN PARA EL DESARROLLO CIENTÍFICO Y TECNOLÓGICO, S.A.",
     "acronim": "CODECYT",
+    "asigned": []
+  },
+  {
+    "name": "COMUNA SOCIALISTA PUERTO DE NUTRIA",
+    "acronim": "COMUNA PTO NUTRIA",
     "asigned": []
   },
   {

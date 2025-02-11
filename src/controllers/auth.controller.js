@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { createAccessToken } from "../libs/jwt.js";
-/* import { sendMail } from "../utils/mailer.js" */
+import { sendMail } from "../utils/mailer.js"
 
 export const register = async (req, res) => {
   try {
@@ -194,14 +194,19 @@ export const resetPassword = async (req, res) => {
     console.log(id)
     const userFound = await User.findById(id)
 
-    const payload = jwt.verify(token, process.env.TOKEN_SECRET || "secret")
+    if(userFound){
+      const payload = jwt.verify(token, process.env.TOKEN_SECRET || "secret")
+  
+      userFound.password = await bcrypt.hash(password, 10);
+  
+      userFound.save()
+  
+      return res.status(200).json("contraseña cambiada exitosamente")
 
-    userFound.password = await bcrypt.hash(password, 10);
 
-    userFound.save()
+    }
 
-    return res.status(200).json("contraseña cambiada exitosamente")
-
+    return res.status(202).json("no existe usuario")
   } catch (error) {
     console.log(error)
     return res.status(500).json(error)

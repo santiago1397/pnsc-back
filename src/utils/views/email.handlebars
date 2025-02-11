@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    
+    <style>
+        .verfy-button{
+            text-decoration: none;
+            border: 1px solid #3498db;
+            background-color: #3498db;
+            color: white !important;
+            padding: 10px;
+            border-radius: 15px;
+            margin: 5px auto;
+        }
+        body{
+            margin: 10px 0px;
+            display: flex;
+            justify-content: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        .content-container{
+            text-align: center;
+            margin: 0px auto;
+            font-family: Verdana;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            width: 400px;
+            border: 1px solid gray;
+            padding: 30px 20px;
+            border-radius: 10px;
+        }
+        .image-container{
+            height: 70px;
+            overflow: hidden;
+        }
+        .body {
+            background-color: linen;
+            margin: 20px 50px;
+        }
+        .image{
+            margin: 10px auto;
+            border-radius: 25px;
+            transform: translateY(-40px);
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content-container">
+        {{!-- <div class="image-container">
+            <img class="image" src="https://pbs.twimg.com/profile_images/1671198560618967040/f013tAG1_400x400.jpg" alt="">
+        </div> --}}
+        <p>
+            Hola! 
+        </p>
+        <p>
+            {{message}}
+        </p>
+
+        
+
+        <a href={{link}} class="verfy-button">
+            {{button}}
+        </a>
+
+    </div>
+</body>
+
+</html>

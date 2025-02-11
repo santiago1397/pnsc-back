@@ -3,23 +3,105 @@ import Activity from "../models/Activities.js";
 import { Category, Categorylvl1, Categorylvl2, Categorylvl3 } from "../models/Category.js"
 import Visits from "../models/Visits.js";
 import Teachers from "../models/Teachers.js"
+import Entity from "../models/Entity.js"
+import Schedule from "../models/Schedule.js";
+import User from "../models/User.js"
 import * as XLSX from 'xlsx'
+import { skipMiddlewareFunction } from "mongoose";
 
 export const getGeneralReport = async (req, res) => {
+  const categories = [Category, Categorylvl1, Categorylvl2, Categorylvl3]
+  const categoriesnames = ["category", "subCategorylvl1", "subCategorylvl2", "subCategorylvl3"]
+  const categoriesnames1 = ["category", "categorylvl1", "categorylvl2", "categorylvl3"]
+
+
   try {
-    const categories = await Category.find();
 
     var entityQuery = {}
     if (req.params.entity != "TODOS") {
       entityQuery = { entity: req.params.entity }
     }
 
+    const addRecursive = async (previousid, step = 1) => {
+
+      if (step > categories.length - 1) {
+        return []
+      }
+
+      var obj = {}
+      obj[categoriesnames1[step - 1]] = previousid
+      const categories1 = await categories[step].find({ ...obj })
+
+      const elements = [];
+      for (let i = 0; i < categories1.length; i++) { // Use for...of loop
+        const name = categories1[i].name;
+        var obj1 = {}
+        obj1[categoriesnames[step]] = categories1[i].name
+
+        const male = await Student.countDocuments({ ...entityQuery, ...obj1, gender: "Masculino" })
+        const female = await Student.countDocuments({ ...entityQuery, ...obj1, gender: "Femenino" })
+        const teachers = await Teachers.countDocuments({ ...entityQuery, ...obj1 })
+        const subs = await addRecursive(categories1[i].id, step + 1)
+
+        elements.push({ name, male, female, total: male + female, teachers, subs });
+      }
+
+      return elements;
+      /* const elements = await Promise.all(categories1.map(async (category) => {
+        const name = category.name;
 
 
 
+        const [male, female, teachers, subs] = await Promise.all([
+          Student.countDocuments({ ...entityQuery, ...obj1, gender: "Masculino" }),
+          Student.countDocuments({ ...entityQuery, ...obj1, gender: "Femenino" }),
+          Teachers.countDocuments({ ...entityQuery, ...obj1 }),
+          addRecursive(category._id, step + 1)
+        ]);
+
+        return { name, male, female, total: male + female, teachers, subs };
+      }));
+
+      return elements */
+
+    }
 
 
-    return res.status(200).json({ report, general: { name: total, f: femenino, m: masculino, p: profesores, t: total } });
+    const categories1 = await Category.find();
+
+
+
+    /* const report = await Promise.all(categories1.map(async (category) => {
+      const name = category.name;
+      const [male, female, teachers, subs] = await Promise.all([
+        Student.countDocuments({ ...entityQuery, category: category.name, gender: "Masculino" }),
+        Student.countDocuments({ ...entityQuery, category: category.name, gender: "Femenino" }),
+        Teachers.countDocuments({ ...entityQuery, category: category.name }),
+        addRecursive(category._id)
+      ]);
+      return { name, male, female, total: male + female, teachers, subs };
+    })); */
+
+
+    const report = [];
+    for (const category of categories1) {
+      const name = category.name;
+      console.log(category._id)
+      const male = await Student.countDocuments({ ...entityQuery, category: category.name, gender: "Masculino" })
+      const female = await Student.countDocuments({ ...entityQuery, category: category.name, gender: "Femenino" })
+      const teachers = await Teachers.countDocuments({ ...entityQuery, category: category.name })
+      const subs = await addRecursive(category._id, 1)
+
+      report.push({ name, male, female, total: male + female, teachers, subs });
+    }
+
+
+
+    const male = await Student.countDocuments({ ...entityQuery, gender: "Masculino" })
+    const female = await Student.countDocuments({ ...entityQuery, gender: "Femenino" })
+    const teachers = await Teachers.countDocuments({ ...entityQuery })
+
+    return res.status(200).json({ report, general: { f: female, m: male, total: female + male, p: teachers } });
   } catch (err) {
     console.log(err)
     return res.status(500).json(err);
@@ -309,7 +391,70 @@ export const searchStudent = async (req, res) => {
 export const overAllReport = async (req, res) => {
   try {
 
-    res.status(200).json()
+
+    const entities = await Entity.find({})
+
+    var report = []
+    for (let i = 0; i < entities.length; i++) {
+      //agendas expiradas (ya realizadas, sin cargar datos)
+
+
+      const schedules = await Schedule.countDocuments({ "entity._id": entities[i].id, activityDate: { $lt: new Date() } })
+
+      // la ultima conexion
+      const users = await User.find({ entity: entities[i]._id })
+      if (users.length > 0) {
+        const userlastCon = users.reduce((accumulator, currentObject) => {
+          return currentObject.lastConnexion && currentObject.lastConnexion > accumulator.lastConnexion ? currentObject : accumulator;
+        });
+
+        const userlastSchedule = users.reduce((accumulator, currentObject) => {
+          return currentObject.lastScheduled && currentObject.lastScheduled > accumulator.lastScheduled ? currentObject : accumulator;
+        });
+
+        const userlastVisitLoaded = users.reduce((accumulator, currentObject) => {
+          return currentObject.lastLoaded && currentObject.lastLoaded > accumulator.lastLoaded ? currentObject : accumulator;
+        });
+
+
+        report.push({
+          id: entities[i]._id,
+          name: entities[i].name,
+          acronim: entities[i].acronim,
+          lastCon: userlastCon.lastConnexion,
+          lastScheduled: userlastSchedule.lastScheduled,
+          lastVisitLoaded: userlastVisitLoaded.lastLoaded,
+          expired: schedules,
+        })
+      } else {
+        report.push({
+          id: entities[i]._id,
+          name: entities[i].name,
+          acronim: entities[i].acronim,
+          lastCon: null,
+          lastScheduled: null,
+          lastVisitLoaded: null,
+          expired: schedules
+        })
+      }
+    }
+
+    if (req.params.sortBy === "expired") {
+      console.log("hello")
+      report.sort((a, b) => a.expired - b.expired);
+      report.reverse()
+    } else if (req.params.sortBy === "lastCon") {
+      report.sort((a, b) => a.lastCon - b.lastCon);
+    }
+
+    const skip = parseInt(req.params.skip, 10) || 0; // Parse to integer, default to 0
+    const limit = parseInt(req.params.limit, 10) || report.length;
+
+    const finalReport = report.slice(skip, skip + limit)
+
+
+
+    return res.status(200).json({ documents: finalReport, total: report.length })
   } catch (err) {
     console.log(err)
     return res.status(500).json(err);

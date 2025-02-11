@@ -585,5 +585,56 @@ export const users = [
     "name": "Isbelys",
     "lastName": "Rodriguez",
     "role": "Delegado"
-  }
+  },
+  {
+    "email": "vm.comunalizacion@mincyt.gob.ve",
+    "name": "Comunalizacion",
+    "lastName": "De la Ciencia",
+    "password": "89RBW2DuvT",
+    "role": "ROOT",
+    "asigned": [],
+    "entity": "MINISTERIO DEL PODER POPULAR PARA CIENCIA Y TECNOLOGÍA",
+  },
+  {
+    "email": "formacion2017katty@gmail.com",
+    "name": "Katiuska",
+    "lastName": "Requena",
+    "password": "89RBW2DuvT",
+    "role": "Delegado",
+    "asigned": [],
+    "entity": "FUNDACIÓN INFOCENTRO",
+  },
+  {
+    "email": "comunasocialistapn@gmail.com",
+    "name": "Comuna",
+    "lastName": "Socialista",
+    "password": "dXWWsn7yAF",
+    "role": "Presidente",
+    "asigned": [],
+    "entity": "COMUNA SOCIALISTA PUERTO DE NUTRIA",
+  },
+  {
+    "email": "crytsaliuspurroy@gmail.com",
+    "password": "TcSuVrt5lj",
+    "entity": "OFICINA DE ATENCIÓN AL CIUDADANO",
+    "name": "Crysalius",
+    "lastName": "Purroy",
+    "role": "Delegado"
+  },
+  {
+    "email": "zorilylaburo@gmail.com",
+    "password": "En6X6h12xa",
+    "entity": "CANAIMA INDUSTRIAS CANAIMA, C.A.",
+    "name": "Zorily Nefferthity",
+    "lastName": "Castillo Martínez",
+    "role": "Delegado"
+  },
+  {
+    "email": "cnicacao@outlook.es",
+    "password": "gB67ZfcPax",
+    "entity": "CENTRO NACIONAL DE INVESTIGACIÓN EN CACAO",
+    "name": "cni",
+    "lastName": "cacao",
+    "role": "Presidente"
+  },
 ]

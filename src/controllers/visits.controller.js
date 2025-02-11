@@ -3,6 +3,7 @@ import Student from "../models/Student.js";
 import Schedule from "../models/Schedule.js";
 import Teachers from "../models/Teachers.js";
 import Entity from "../models/Entity.js"
+import User from "../models/User.js"
 import fs from "fs"
 import * as XLSX from 'xlsx'
 
