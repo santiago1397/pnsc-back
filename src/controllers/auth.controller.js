@@ -16,7 +16,7 @@ export const register = async (req, res) => {
       entity,
     } = req.body;
 
-    const userFound = await User.findOne({ email });
+    const userFound = await User.findOne({ email: email.toLowerCase() });
 
     if (userFound)
       return res.status(400).json({
@@ -61,7 +61,7 @@ export const login = async (req, res) => {
 
     const { email, password } = req.body;
 
-    var userFound = await User.findOne({ email }).populate('entity').populate('role');
+    var userFound = await User.findOne({ email: email.toLowerCase() }).populate('entity').populate('role');
 
     if (!userFound)
       return res.status(400).json({
@@ -128,7 +128,7 @@ export const verify = async (req, res) => {
     jwt.verify(token, process.env.TOKEN_SECRET || "secret", async (error, user) => {
       if (error) return res.sendStatus(401);
 
-      const userFound = await User.find({ email: user.email }).populate('entity').populate('role');
+      const userFound = await User.find({ email: user.email.toLowerCase()}).populate('entity').populate('role');
       if (userFound.length == 0) return res.sendStatus(401);
 
       const updatedUser = await User.findOneAndUpdate(
@@ -169,7 +169,7 @@ export const forgotPassword = async (req, res) => {
   const { email } = req.body
 
   try {
-    const userFound = await User.find({ email: email })
+    const userFound = await User.find({ email: email.toLowerCase() })
 
     const token = await createAccessToken({
       id: userFound[0]._id,

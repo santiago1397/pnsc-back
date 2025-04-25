@@ -14,7 +14,7 @@ export const createSchedule = async (req, res) => {
     await schedule.save()
 
     const updatedUser = await User.findOneAndUpdate(
-      { email: req.user.email },
+      { email: req.user.email.toLowerCase() },
       { lastScheduled: new Date() },
       { new: true } // Return the updated document
     );

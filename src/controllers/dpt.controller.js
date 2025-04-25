@@ -7,15 +7,15 @@ export const getDpt = async (req, res) => {
   console.log(req.body)
   try {
     if (req.body.state) {
-      const municipios = await Municipality.find({ "value": { "$regex": `^${req.body.state}` } })
+      const municipios = await Municipality.find({ "value": { "$regex": `^${req.body.state}` } }).sort({ "value": 1 })
       return res.json(municipios)
 
     } else if (req.body.municipality) {
-      const parroquias = await Parish.find({ "value": { "$regex": `^${req.body.municipality}` } })
+      const parroquias = await Parish.find({ "value": { "$regex": `^${req.body.municipality}` } }).sort({ "value": 1 })
       return res.json(parroquias)
 
     } else {
-      const estados = await State.find({})
+      const estados = await State.find({}).sort({ "value": 1 })
       return res.json(estados)
     }
 

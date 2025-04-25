@@ -92,7 +92,7 @@ export const createVisit = async (req, res) => {
 
 
     const updatedUser = await User.findOneAndUpdate(
-      { email: req.user.email },
+      { email: req.user.email.toLowerCase() },
       { lastLoaded: new Date() },
       { new: true } // Return the updated document
     );

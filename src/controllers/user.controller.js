@@ -29,7 +29,7 @@ export const getUsers = async (req, res) => {
 
     } else {
       const searched = await User.find({
-        email: { $ne: req.user.email },
+        email: { $ne: req.user.email.toLowerCase() },
         entity: req.user.entity._id
       }).populate('role').sort({ createdAt: -1 });
 
@@ -43,7 +43,7 @@ export const getUsers = async (req, res) => {
 
       //mostrar usuarios menores en cargo y del mismo ente
       const total = await User.countDocuments({
-        email: { $ne: req.user.email },
+        email: { $ne: req.user.email.toLowerCase() },
         "role.role": { $gte: 4 },
         "entity": req.user.entity._id
       }).populate('role')
@@ -72,7 +72,7 @@ export const createUser = async (req, res) => {
 
 
       //valida si exite alguien con ese mail
-      const uservalidation = await User.find({ email: req.body.email }).populate('entity')
+      const uservalidation = await User.find({ email: req.body.email.toLowerCase() }).populate('entity')
       if (uservalidation.length > 0) {
         return res.status(500).json("ya existe un usuario con ese datos");
 
@@ -85,7 +85,7 @@ export const createUser = async (req, res) => {
       !req.body.entity? entityUser=req.user.entity : entityUser=req.body.entity
 
       const newuser = new User({
-        email: req.body.email,
+        email: req.body.email.toLowerCase(),
         name: req.body.name,
         lastName: req.body.lastName,
         role: role._id,
@@ -115,7 +115,7 @@ export const updateUser = async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.body.userId);
 
     // si se modifica el mismo
-    if (req.user.email == req.body.email) {
+    if (req.user.email.toLowerCase() == req.body.email.toLowerCase()) {
       if (req.body.password) {
         const passwordHash = await bcrypt.hash(req.body.password, 10);
         await User.updateOne(
