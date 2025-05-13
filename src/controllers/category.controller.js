@@ -55,7 +55,7 @@ export const getCategories = async (req, res) => {
     const query = {};
     query[categoriesnames[step - 1]] = id;
 
-    const documents = await categories[step].find(query);
+    var documents = await categories[step].find(query);
 
     if (documents.length <= 0) return [];
 
@@ -67,7 +67,7 @@ export const getCategories = async (req, res) => {
   };
 
   try {
-    
+
     const activities = await Category.find().skip(req.params.skip).limit(req.params.limit);
     const total = await Category.countDocuments().skip(req.params.skip).limit(req.params.limit);
 
@@ -88,3 +88,52 @@ export const getCategories = async (req, res) => {
       subcategory[key] = updateData[key];
   }
 } */
+
+
+export const deleteCategory = async (req, res) => {
+  const categories = [Category, Categorylvl1, Categorylvl2, Categorylvl3]
+  const categoriesnames = ["category", "categorylvl1", "categorylvl2", "categorylvl3"]
+
+  const deleteRecursive = async (previousid,  step) => {
+
+    // si estamos buscando fuera del ultimo nivel
+    if (step > categories.length - 1) {
+      return
+    }
+
+    // comprobar si tiene subcategorias
+    var obj = {}
+    obj[categoriesnames[step - 1]] = previousid
+    console.log(obj)
+    var subs = await categories[step].find(obj);
+    console.log(subs)
+    
+
+    // si no tiene subcategorias borrarlo
+    if (subs.length == 0) {
+      await categories[step-1].findByIdAndDelete(previousid);
+      return
+    }
+
+
+    // si tiene subcategorias borrarlas y luego borrar el padre
+    for (let i = 0; i < subs.length; i++) {
+      await deleteRecursive(subs[i]._id,  step + 1)
+    }
+    await categories[step-1].findByIdAndDelete(previousid);
+  }
+
+  try {
+    const newCategory = req.body.id
+
+    const document = await Category.findById(req.params.id)
+    await deleteRecursive(document, 1)
+
+
+
+    res.status(200).json("creada exitosamente")
+  } catch (err) {
+    console.log(err)
+    res.status(500).json(err);
+  }
+}

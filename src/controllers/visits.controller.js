@@ -77,6 +77,8 @@ export const createVisit = async (req, res) => {
 
     });
 
+    /* console.log(aux) */
+
 
     await Student.insertMany(aux)
 
@@ -106,7 +108,7 @@ export const createVisit = async (req, res) => {
 
 
 export const getVisits = async (req, res) => {
-  try {
+  try {    
     var entityQuery = {}
     if (req.query.entity && req.query.entity != "TODOS") {
       const entity = await Entity.find({ name: req.query.entity })

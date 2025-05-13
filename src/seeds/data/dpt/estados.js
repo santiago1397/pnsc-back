@@ -13,7 +13,7 @@ export const States = [
   { label: 'GUARICO', value: '12' },
   { label: 'LARA', value: '13' },
   { label: 'MERIDA', value: '14' },
-  { label: 'BOLIVARIANO DE MIRANDA', value: '15' },
+  { label: 'MIRANDA', value: '15' },
   { label: 'MONAGAS', value: '16' },
   { label: 'NUEVA ESPARTA', value: '17' },
   { label: 'PORTUGUESA', value: '18' },

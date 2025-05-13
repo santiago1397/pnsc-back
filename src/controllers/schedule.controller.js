@@ -9,10 +9,16 @@ export const createSchedule = async (req, res) => {
 
   try {
 
-    console.log(req.body)
-    const schedule = new Schedule({ ...req.body })
+    const schedule = new Schedule({ 
+      ...req.body,
+      scheduledByEmail: req.user.email,
+      scheduledByName: req.user.name,
+      scheduledByLastName: req.user.lastName,
+      scheduledByRole: req.user.role.name
+    })
     await schedule.save()
 
+    // modificamos la ultima que el usuario agendo algo
     const updatedUser = await User.findOneAndUpdate(
       { email: req.user.email.toLowerCase() },
       { lastScheduled: new Date() },

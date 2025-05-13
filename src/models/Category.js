@@ -4,9 +4,24 @@ const CategorySchema = new mongoose.Schema(
   {
     name: { type: String },
     code: { type: String },
-    
+
   },
-  { timestamps: true }
+  { timestamps: true }, {
+  toJSON: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v; // Optional: remove the version key
+    },
+  },
+  toObject: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v; // Optional: remove the version key
+    },
+  },
+}
 );
 const Categorylvl1Schema = new mongoose.Schema(
   {
@@ -15,7 +30,22 @@ const Categorylvl1Schema = new mongoose.Schema(
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' }
 
   },
-  { timestamps: true }
+  { timestamps: true }, {
+  toJSON: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v; // Optional: remove the version key
+    },
+  },
+  toObject: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v; // Optional: remove the version key
+    },
+  },
+}
 );
 const Categorylvl2Schema = new mongoose.Schema(
   {
@@ -24,7 +54,22 @@ const Categorylvl2Schema = new mongoose.Schema(
     categorylvl1: { type: mongoose.Schema.Types.ObjectId, ref: 'Categorylvl1' }
 
   },
-  { timestamps: true }
+  { timestamps: true }, {
+  toJSON: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v; // Optional: remove the version key
+    },
+  },
+  toObject: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v; // Optional: remove the version key
+    },
+  },
+}
 );
 const Categorylvl3Schema = new mongoose.Schema(
   {
@@ -32,7 +77,22 @@ const Categorylvl3Schema = new mongoose.Schema(
     code: { type: String },
     categorylvl2: { type: mongoose.Schema.Types.ObjectId, ref: 'Categorylvl2' }
   },
-  { timestamps: true }
+  { timestamps: true }, {
+  toJSON: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v; // Optional: remove the version key
+    },
+  },
+  toObject: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v; // Optional: remove the version key
+    },
+  },
+}
 );
 
 export const Category = mongoose.model("Category", CategorySchema);

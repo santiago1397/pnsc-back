@@ -15,6 +15,8 @@ const VisitSchema = new mongoose.Schema(
         subCategorylvl2: { type: String },
         subCategorylvl3: { type: String },
 
+        medialink: { type: String, default: '' },
+        images: { type: Array, default: [] },
         checked: { type: Boolean },
         activityDate: { type: Date },
         agendedLink: { type: String },
