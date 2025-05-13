@@ -13,12 +13,11 @@ export const downloadImage = (req, res) => {
 
 export const uploadImage = (req, res) => {
     const { buffer, originalname } = req.file;
-    const { name } = req.body;
+    const { name, entity } = req.body;
 
     console.log(buffer)
 
-    console.log(req.user.entity.name)
-    const path = `./files/routes/${req.user.entity.name}`
+    const path = `./files/routes/${entity}`
     fs.mkdirSync(path, { recursive: true })
 
     const writeStream = fs.createWriteStream(`${path}/${name}`, { flags: 'a' });

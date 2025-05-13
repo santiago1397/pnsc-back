@@ -93,6 +93,7 @@ export const deleteSchedule = async (req, res) => {
 export const generatePDF = async (req, res) => {
   try {
     console.log("hello?")
+    console.log(req.params.entity)
     const data = await Schedule.find({ "entity.name": req.params.entity })
 
     console.log(data)
